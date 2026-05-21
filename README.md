@@ -2,10 +2,10 @@
 
 This small php script looks at a defined station logbook inside your wavelog instance and does 2 things:
 
-(optional) If you marked specific QSOs to be watched for incoming LotW confirmations, send notifications once LotW arrives.
-(always) If a new DXCC gets confirmed by LotW, send notification.
+- (optional) If you marked specific QSOs to be watched for incoming LotW confirmations, send notifications once LotW arrives.
+- (always) If a new DXCC gets confirmed by LotW, send notification.
 
-You can configure the script to notify via Telegram Bot or Discord webhook.
+You can configure the script to notify via Telegram Bot or Discord webhook (or both!).
 
 At the moment, this is a personal project. But use it if you like.
 
