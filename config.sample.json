@@ -1,0 +1,31 @@
+{
+  "database": {
+    "host": "database_host",
+    "name": "database_name",
+    "user": "user_with_alter_priviliges",
+    "pass": "user_password",
+    "charset": "utf8mb4"
+  },
+  "features": {
+    "notify_lotw_marked_qsos": true
+  },
+  "notifications": {
+    "discord": {
+      "enabled": true,
+      "webhook_url": "https://discord.com/api/webhooks/YOUR/WEBHOOK",
+      "mention": "<@1940530386564008>"
+    },
+    "telegram": {
+      "enabled": false,
+      "bot_token": "123456789:ABCDEF_YOUR_BOT_TOKEN",
+      "chat_id": "123456789"
+    }
+  },
+  "logbook": {
+    "station_logbook_id": 13
+  },
+  "runtime": {
+    "state_file": "lotw_resultset_count.state",
+    "send_delay_microseconds": 300000
+  }
+}
