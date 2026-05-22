@@ -376,7 +376,7 @@ if ($notifyLotwMarkedQsosEnabled) {
 
             $comment = empty($row['COL_COMMENT'])
                 ? ''
-                : ("\nKommentar: " . $row['COL_COMMENT']);
+                : ("\nComment: " . $row['COL_COMMENT']);
 
             //build message using this data
             $message = sprintf(
@@ -542,7 +542,7 @@ if ($newCount > 0) {
     
     //construct message
     $message = sprintf(
-        "Neue Anzahl von DXCCs mit LotW confirmation: %d",
+        "New amount of DXCCs with LotW confirmation: %d",
         $currentCount
     );
 
