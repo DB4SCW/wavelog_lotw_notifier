@@ -19,6 +19,13 @@
       "enabled": false,
       "bot_token": "123456789:ABCDEF_YOUR_BOT_TOKEN",
       "chat_id": "123456789"
+    },
+    "gotify": {
+      "enabled": false,
+      "server_url": "https://gotify.example.com",
+      "app_token": "YOUR_GOTIFY_APPLICATION_TOKEN",
+      "title": "Wavelog LotW Notifier",
+      "priority": 5
     }
   },
   "logbook": {

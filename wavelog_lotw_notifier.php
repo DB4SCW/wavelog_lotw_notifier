@@ -167,6 +167,65 @@ function sendToTelegram(string $botToken, string $chatId, string $message): bool
     return true;
 }
 
+//function to send notification to a Gotify server
+function sendToGotify(string $serverUrl, string $appToken, string $title, int $priority, string $message): bool
+{
+    //check if server URL and application token are present
+    if ($serverUrl === '' || $appToken === '') {
+        echo "Gotify server_url or app_token missing." . PHP_EOL;
+        return false;
+    }
+
+    //construct URL and payload
+    $url = rtrim($serverUrl, '/') . '/message';
+    $payload = json_encode([
+        'title' => $title,
+        'message' => $message,
+        'priority' => $priority
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    //abort if payload construction fails
+    if ($payload === false) {
+        echo "Gotify-Payload could not be constructed." . PHP_EOL;
+        return false;
+    }
+
+    //prepare curl
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($payload),
+            'X-Gotify-Key: ' . $appToken
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 20,
+    ]);
+
+    //execute curl
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    //handle curl error
+    if (curl_errno($ch)) {
+        echo "Gotify cURL-error: " . curl_error($ch) . PHP_EOL;
+        curl_close($ch);
+        return false;
+    }
+
+    //handle http errors
+    if ($httpCode < 200 || $httpCode >= 300) {
+        echo "Gotify-error ({$httpCode}): {$response}" . PHP_EOL;
+        curl_close($ch);
+        return false;
+    }
+
+    curl_close($ch);
+    return true;
+}
+
 //unified notifier-function
 function sendNotification(array $config, string $message, bool $withDiscordMention = false): bool
 {
@@ -174,9 +233,10 @@ function sendNotification(array $config, string $message, bool $withDiscordMenti
     //check feature status
     $discordEnabled = (bool) cfg($config, 'notifications.discord.enabled', false);
     $telegramEnabled = (bool) cfg($config, 'notifications.telegram.enabled', false);
+    $gotifyEnabled = (bool) cfg($config, 'notifications.gotify.enabled', false);
 
     //abort if no channel is enabled
-    if (!$discordEnabled && !$telegramEnabled) {
+    if (!$discordEnabled && !$telegramEnabled && !$gotifyEnabled) {
         echo "No notification channel activated. We will not send any message." . PHP_EOL;
         return false;
     }
@@ -205,6 +265,25 @@ function sendNotification(array $config, string $message, bool $withDiscordMenti
 
         $telegramSuccess = sendToTelegram($telegramBotToken, $telegramChatId, $message);
         $success = $success && $telegramSuccess;
+    }
+
+    //load relevant data and trigger gotify message if enabled
+    if ($gotifyEnabled) {
+        
+        $gotifyServerUrl = (string) cfg($config, 'notifications.gotify.server_url', '');
+        $gotifyAppToken = (string) cfg($config, 'notifications.gotify.app_token', '');
+        $gotifyTitle = (string) cfg($config, 'notifications.gotify.title', 'Wavelog LotW Notifier');
+        $gotifyPriority = (int) cfg($config, 'notifications.gotify.priority', 5);
+
+        $gotifySuccess = sendToGotify(
+            $gotifyServerUrl,
+            $gotifyAppToken,
+            $gotifyTitle,
+            $gotifyPriority,
+            $message
+        );
+        
+        $success = $success && $gotifySuccess;
     }
 
     //return combined success
